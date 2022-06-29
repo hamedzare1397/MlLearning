@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Ml\Fuzzy\Fuzzifier\FuzzyTransformer;
 use Ml\Fuzzy\Models\MamdaniModel;
+use Ml\Fuzzy\Rule\Rule;
 use Rubix\ML\Clusterers\FuzzyCMeans;
 use Rubix\ML\Clusterers\Seeders\Preset;
 use Rubix\ML\Datasets\Labeled;
@@ -99,12 +100,31 @@ class IndexController extends Controller
     public function mamdani(Request $request)
     {
         $data = $this->repository->get('fuzzyData', storage_path('app\data\index.csv'));
-        $mamdani = new MamdaniModel();
-        $mamdani->learn($data);
-        $sample = $data->randomize()[0];
-        $mamdani->evaluation($sample);
+        $d =$data->randomize();
+        $d->apply(new FuzzyTransformer());
 
+        $rror_count = 0;
+        $errorData = collect();
+        $errorResult = collect();
+        $rules = collect();
+        $c = collect();
+        for($i=0;$i<count($d);$i++) {
+            $mamdani = new MamdaniModel();
+            $newd = clone $d;
+            $sample = $newd->splice($i, 1);
+            $mamdani->learn($newd);
+            /** @var Rule $result */
+            $result=$mamdani->evaluation($sample[0]);
+            if($sample[0][13]!=$result->getLabel()){
+                $rror_count++;
+                $errorData->add($sample);
+                $errorResult->add($result);
+                $rules->add($mamdani->getRules());
+                $c->add(count($newd));
+            }
+        }
 
+        dd($rror_count,$errorData,$errorResult,$rules,$c);
 
         $mamdani->fuzzification($data);
         dd($mamdani);

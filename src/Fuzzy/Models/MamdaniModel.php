@@ -18,6 +18,11 @@ class MamdaniModel
     protected $input;
     public function __construct(protected $samples=null, protected $rules=null){}
 
+    public function getRules()
+    {
+        return $this->rules;
+    }
+
     public function setInput($samples)
     {
         $this->samples = $samples;
@@ -39,12 +44,15 @@ class MamdaniModel
 
     public function learn(Labeled $samples)
     {
-        $this->samples = $samples->apply(new FuzzyTransformer());
+        $this->samples = $samples;//->apply(new FuzzyTransformer());
         $info = $this->samples->describeByLabel();
+
         foreach ($info as $label=>$attrs) {
             $rule = new Rule($label);
             foreach ($attrs as $attr => $data) {
-                $mf = new Triangle($data['min']-.05, $data['mean'], $data['max']+.05);
+                $min = $data['min'] > .05 ? $data['min'] - .05 : 0;
+                $max = $data['max'] < .95 ? $data['max'] + .05 : 1;
+                $mf = new Triangle($min, $data['mean'], $max);
                 $rule->addMemberShip($mf);
             }
             $this->addRules($rule);
@@ -58,7 +66,7 @@ class MamdaniModel
         foreach ($this->rules as $rule) {
             $temp->add($rule->apply($input));
         }
-        dd($input, $this->aggregation($temp));
+        return $this->aggregation($temp);
     }
 
 

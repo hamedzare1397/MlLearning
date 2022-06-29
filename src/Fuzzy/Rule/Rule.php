@@ -51,4 +51,9 @@ class Rule
         $this->firing=$operand->handle($temp);
         return $this;
     }
+
+    public function getLabel()
+    {
+        return $this->y;
+    }
 }
