@@ -4,49 +4,51 @@
 namespace Ml\Fuzzy\Rule;
 
 
+use Illuminate\Support\Collection;
 use Ml\Fuzzy\MemberShipFunction\GaussianMF;
+use Ml\Fuzzy\MemberShipFunction\MemberShipFunctions;
 use Ml\Fuzzy\Operators\IOperator;
 use Ml\Fuzzy\Operators\TNorm\TNorm;
 
-class Rule implements IRule
+class Rule
 {
-    protected $antecedents = null;
-    protected $consequent = null;
-    protected $description = "";
-    protected $mf = null;
-    public function getAntecedent()
+    protected $memberShips;
+    protected $y;
+    protected $firing;
+
+    /**
+     * @return mixed
+     */
+    public function getFiring()
     {
-        return $this->antecedents;
+        return $this->firing;
+    }
+    public function __construct($label)
+    {
+        $this->y = $label;
+        $this->memberShips=new Collection();
     }
 
-    public function getConsequent()
+    public function addMemberShip(MemberShipFunctions $memberShip)
     {
-        return $this->consequent;
+        $this->memberShips->add($memberShip);
     }
 
-    public function getDescription()
+    public function apply($X)
     {
-        return $this->description;
-    }
-
-    public function setDescription($description)
-    {
-        $this->description=$description;
-    }
-
-    public function thisAnd($rule ,$operator = null): IRule
-    {
-        if (is_null($operator)) {
-            $operator = new TNorm(TNorm::TNORM_MIN);
+        $temp = collect();
+        $operand = new TNorm(TNorm::DotProduct);
+        /**
+         * @var  $index
+         * @var MemberShipFunctions $memberShip
+         */
+        foreach ($this->memberShips as $index=>$memberShip) {
+            if(count($X)==$index+1)
+                continue;
+            $result = $memberShip->handle($X[$index]);
+            $temp->add($result);
         }
-        return $operator->handle($this->getAntecedent(),$rule);
-    }
-
-    public function setMemberShipFunction(MemberShipFunction $mf=null)
-    {
-        if (is_null($mf)) {
-            $mf = new GaussianMF(1, .5);
-        }
-        $this->mf = $mf;
+        $this->firing=$operand->handle($temp);
+        return $this;
     }
 }

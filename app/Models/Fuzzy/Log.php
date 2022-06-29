@@ -1,6 +1,6 @@
 <?php
 
-namespace Ml\Fuzzy\Models;
+namespace App\Models\Fuzzy;
 
 use Illuminate\Database\Eloquent\Model;
 

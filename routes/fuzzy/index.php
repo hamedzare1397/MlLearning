@@ -7,3 +7,7 @@ use \App\Http\Controllers\ML\Fuzzy\IndexController;
 Route::get('', [IndexController::class, 'index',])->name('.index');
 Route::get('learn', [IndexController::class, 'learn',])->name('.learn');
 Route::get('predict', [IndexController::class, 'predict',])->name('.predict');
+
+
+Route::get('mamdani', [IndexController::class, 'mamdani',])->name('.mamdani');
+

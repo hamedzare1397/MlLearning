@@ -8,6 +8,7 @@ use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Ml\Fuzzy\Fuzzifier\FuzzyTransformer;
+use Ml\Fuzzy\Models\MamdaniModel;
 use Rubix\ML\Clusterers\FuzzyCMeans;
 use Rubix\ML\Clusterers\Seeders\Preset;
 use Rubix\ML\Datasets\Labeled;
@@ -18,6 +19,12 @@ use Rubix\ML\Kernels\Distance\Euclidean;
 
 class IndexController extends Controller
 {
+    protected $repository;
+    public function __construct()
+    {
+        $this->repository=new RepositoryFuzzy();
+    }
+
     public function index(Request $request)
     {
         return view('fuzzy.index');
@@ -86,5 +93,20 @@ class IndexController extends Controller
         dd($viewData);
         return view('fuzzy.learning',$viewData);
 
+    }
+
+
+    public function mamdani(Request $request)
+    {
+        $data = $this->repository->get('fuzzyData', storage_path('app\data\index.csv'));
+        $mamdani = new MamdaniModel();
+        $mamdani->learn($data);
+        $sample = $data->randomize()[0];
+        $mamdani->evaluation($sample);
+
+
+
+        $mamdani->fuzzification($data);
+        dd($mamdani);
     }
 }

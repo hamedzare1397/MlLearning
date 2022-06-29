@@ -2,7 +2,7 @@
 
 namespace Ml\Fuzzy;
 
-use Ml\Fuzzy\Models\Log;
+use App\Models\Fuzzy\Log;
 
 class Logger implements \Psr\Log\LoggerInterface
 {
