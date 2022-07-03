@@ -8,9 +8,10 @@ use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Ml\Fuzzy\Fuzzifier\FuzzyTransformer;
-use Ml\Fuzzy\Models\MamdaniModel;
+use Ml\Fuzzy\Models\MamdaniEstimator;
 use Rubix\ML\Clusterers\FuzzyCMeans;
 use Rubix\ML\Clusterers\Seeders\Preset;
+use Rubix\ML\CrossValidation\HoldOut;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\Datasets\Unlabeled;
 use Rubix\ML\Extractors\ColumnPicker;
@@ -99,7 +100,8 @@ class IndexController extends Controller
     public function mamdani(Request $request)
     {
         $data = $this->repository->get('fuzzyData', storage_path('app\data\index.csv'));
-        $mamdani = new MamdaniModel();
+        $data->apply(new FuzzyTransformer());
+        $mamdani = new MamdaniEstimator();
         $mamdani->learn($data);
         $sample = $data->randomize()[0];
         $mamdani->evaluation($sample);
@@ -108,5 +110,15 @@ class IndexController extends Controller
 
         $mamdani->fuzzification($data);
         dd($mamdani);
+    }
+
+    public function describe(Request $request)
+    {
+        $data = $this->repository->get('fuzzyData', storage_path('app\data\index.csv'));
+        $data->apply(new FuzzyTransformer());
+        dd([
+            'describe'=>$data->describe(),
+            'describeByLabel'=>$data->describeByLabel(),
+            ]);
     }
 }

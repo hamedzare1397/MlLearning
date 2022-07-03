@@ -10,4 +10,5 @@ Route::get('predict', [IndexController::class, 'predict',])->name('.predict');
 
 
 Route::get('mamdani', [IndexController::class, 'mamdani',])->name('.mamdani');
+Route::get('describe', [IndexController::class, 'describe',])->name('.describe');
 
