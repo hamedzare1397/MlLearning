@@ -5,17 +5,14 @@ namespace Ml\Fuzzy\Models;
 
 
 use Illuminate\Support\Collection;
-use Ml\Fuzzy\Fuzzifier\Fuzzifier;
 use Ml\Fuzzy\Fuzzifier\FuzzyTransformer;
 use Ml\Fuzzy\MemberShipFunction\Triangle;
 use Ml\Fuzzy\Rule\Rule;
 use Rubix\ML\Datasets\Dataset;
 use Rubix\ML\Datasets\Labeled;
-use function Amp\Promise\rethrow;
 
 class MamdaniModel
 {
-    protected $input;
     public function __construct(protected $samples=null, protected $rules=null){}
 
     public function getRules()

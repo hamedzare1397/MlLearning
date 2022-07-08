@@ -11,13 +11,23 @@ use Rubix\ML\Extractors\CSV;
 
 class RepositoryFuzzy
 {
-    protected $ttl = 3600;
-    public function get($key,$path)
+    protected $ttl;
+    protected $path;
+
+    public function __construct($path,$ttl=3600)
     {
+        $this->path = $path;
+        $this->ttl = $ttl;
+    }
+    public function get($key,$path=null)
+    {
+        if (! is_null($path)) {
+            $this->path = $path;
+        }
         if (Cache::has($key)) {
             return Cache::get($key);
         }
-        $data=$this->readFromPath($path);
+        $data=$this->readFromPath($this->path);
         Cache::add($key, $data, $this->ttl);
         return $data;
     }
@@ -32,6 +42,39 @@ class RepositoryFuzzy
         );
         $data = Labeled::fromIterator($extractor);
         return $data;
+    }
+
+    public function getTrainData($key,$ration=.5,$flash=false)
+    {
+        if ($flash) {
+            Cache::forget("$key.train");
+            Cache::forget("$key.test");
+        }
+        if (Cache::has($key . '.train')) {
+            return Cache::get($key . '.train');
+        }
+        else{
+            [$train, $test] = $this->get($key)->randomize()->split($ration);
+            Cache::put("$key.train", $train,$this->ttl);
+            Cache::put("$key.test", $test,$this->ttl);
+            return $train;
+        }
+    }
+    public function getTestData($key,$ration=.5,$flash=false)
+    {
+        if ($flash) {
+            Cache::forget("$key.train");
+            Cache::forget("$key.test");
+        }
+        if (Cache::has($key . '.test')) {
+            return Cache::get($key . '.test');
+        }
+        else{
+            [$train, $test] = $this->get($key)->randomize()->split($ration);
+            Cache::put("$key.train", $train);
+            Cache::put("$key.test", $test);
+            return $test;
+        }
     }
 
 }
