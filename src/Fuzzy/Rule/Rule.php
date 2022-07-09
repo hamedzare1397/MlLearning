@@ -27,6 +27,7 @@ class Rule
     {
         $this->y = $label;
         $this->memberShips=new Collection();
+        $this->firing = 0;
     }
 
     public function addMemberShip(MemberShipFunctions $memberShip)
@@ -43,8 +44,6 @@ class Rule
          * @var MemberShipFunctions $memberShip
          */
         foreach ($this->memberShips as $index=>$memberShip) {
-            if(count($X)==$index+1)
-                continue;
             $result = $memberShip->handle($X[$index]);
             $temp->add($result);
         }

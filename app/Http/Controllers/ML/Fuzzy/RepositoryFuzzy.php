@@ -54,27 +54,18 @@ class RepositoryFuzzy
             return Cache::get($key . '.train');
         }
         else{
-            [$train, $test] = $this->get($key)->randomize()->split($ration);
+            [$test,$train] = $this->get($key)->randomize()->split($ration);
             Cache::put("$key.train", $train,$this->ttl);
             Cache::put("$key.test", $test,$this->ttl);
             return $train;
         }
     }
-    public function getTestData($key,$ration=.5,$flash=false)
+    public function getTestData($key)
     {
-        if ($flash) {
-            Cache::forget("$key.train");
-            Cache::forget("$key.test");
-        }
         if (Cache::has($key . '.test')) {
             return Cache::get($key . '.test');
         }
-        else{
-            [$train, $test] = $this->get($key)->randomize()->split($ration);
-            Cache::put("$key.train", $train);
-            Cache::put("$key.test", $test);
-            return $test;
-        }
+        throw new \Exception('No Test Data! please first get Train Data then try to get TestData');
     }
 
 }

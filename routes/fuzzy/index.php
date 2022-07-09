@@ -16,5 +16,6 @@ Route::prefix('new_mamdani')
     ->name('.new_mamdani')
     ->group(function () {
         Route::get('train', [MamdaniController::class, 'train'])->name('.train');
+        Route::get('predict', [MamdaniController::class, 'predict'])->name('.predict');
     });
 

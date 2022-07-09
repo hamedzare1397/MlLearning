@@ -23,7 +23,8 @@ class IndexController extends Controller
     protected $repository;
     public function __construct()
     {
-        $this->repository=new RepositoryFuzzy();
+        $path = Storage::path('data\index.csv');
+        $this->repository=new RepositoryFuzzy($path);
     }
 
     public function index(Request $request)
@@ -99,7 +100,7 @@ class IndexController extends Controller
 
     public function mamdani(Request $request)
     {
-        $data = $this->repository->get('fuzzyData', storage_path('app\data\index.csv'));
+        $data = $this->repository->get('fuzzyData');
         $d =$data->randomize();
         $d->apply(new FuzzyTransformer());
 
